@@ -71,7 +71,7 @@ useEffect(() => {
     const fetchUserAndConversations = async () => {
       try {
         const token = await getToken();
-        const res = await axios.get('http://localhost:5000/me', {
+        const res = await axios.get('https://back-r655.onrender.com/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -79,7 +79,7 @@ useEffect(() => {
         const uid = res.data.id;
         setUserId(uid);
 
-        const convoRes = await axios.get(`http://localhost:5000/conversations/${uid}`);
+        const convoRes = await axios.get(`https://back-r655.onrender.com/conversations/${uid}`);
         const sortedConvos = convoRes.data.sort((a, b) =>
           new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0)
         );
@@ -96,7 +96,7 @@ useEffect(() => {
 
   // Setup socket
   useEffect(() => {
-    const newSocket = io('http://localhost:5000', { 
+    const newSocket = io('https://back-r655.onrender.com', { 
       withCredentials: true,
       transports: ['websocket']
     });
@@ -382,7 +382,7 @@ const processQueuedCandidates = async (peerId) => {
 
   const setChat = async (otherUser) => {
     try {
-      const convoRes = await axios.post('http://localhost:5000/conversations', {
+      const convoRes = await axios.post('https://back-r655.onrender.com/conversations', {
         senderId: userId,
         receiverId: otherUser._id,
       });
@@ -391,7 +391,7 @@ const processQueuedCandidates = async (peerId) => {
       setSelectedChat({ ...conversation, user: otherUser });
       
 
-      const messagesRes = await axios.get(`http://localhost:5000/messages/${conversation._id}`);
+      const messagesRes = await axios.get(`https://back-r655.onrender.com/messages/${conversation._id}`);
       setChatMessages(messagesRes.data);
 
       setPic(otherUser.image);
@@ -458,7 +458,7 @@ const processQueuedCandidates = async (peerId) => {
     if (!text.trim() || !selectedChat?._id) return;
 
     try {
-      const msgRes = await axios.post('http://localhost:5000/messages', {
+      const msgRes = await axios.post('https://back-r655.onrender.com/messages', {
         conversationId: selectedChat._id,
         senderId: userId,
         text: text,
@@ -495,7 +495,7 @@ const processQueuedCandidates = async (peerId) => {
     }
 
     try {
-      const res = await axios.get('http://localhost:5000/users');
+      const res = await axios.get('https://back-r655.onrender.com/users');
       const filtered = res.data.filter(
         (user) =>
           user.name.toLowerCase().includes(query.toLowerCase()) &&
@@ -517,7 +517,7 @@ const processQueuedCandidates = async (peerId) => {
     formData.append('senderId', userId);
 
     try {
-      const res = await axios.post('http://localhost:5000/messages/file', formData, {
+      const res = await axios.post('https://back-r655.onrender.com/messages/file', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -559,18 +559,18 @@ const startCall = async (type) => {
     // Create peer connection
     peerConnection.current = new RTCPeerConnection({
       iceServers: [
-    {
-      urls: [
-        "stun:stun.l.google.com:19302",
-        "stun:stun1.l.google.com:19302"
-      ]
-    },
-    {
-      urls: "turn:relay1.expressturn.com:3478",
-      username: "000000002065507580",
-      credential: "nbEnmf9DArh2pXd38I93qKdDufE="
-    }
-  ],
+        {
+          urls: [
+            "stun:stun.l.google.com:19302",
+            "stun:stun1.l.google.com:19302"
+          ]
+        },
+        {
+          urls: "turn:relay1.expressturn.com:3478",
+          username: "000000002065507580",
+          credential: "nbEnmf9DArh2pXd38I93qKdDufE="
+        }
+      ],
       iceTransportPolicy: "all",
       bundlePolicy: "max-bundle",
       rtcpMuxPolicy: "require",
@@ -676,6 +676,7 @@ const startCall = async (type) => {
     });
 
     // Send the offer
+    console.log("Emitting offer to:", selectedChat.user._id, "from:", userId);
     socket.emit("offer", {
       to: selectedChat.user._id,
       fromUserId: userId,
@@ -745,18 +746,18 @@ const startCall = async (type) => {
     // Create peer connection
     const rtcConfig = {
      iceServers: [
-    {
-      urls: [
-        "stun:stun.l.google.com:19302",
-        "stun:stun1.l.google.com:19302"
-      ]
-    },
-    {
-      urls: "turn:relay1.expressturn.com:3478",
-      username: "000000002065507580",
-      credential: "nbEnmf9DArh2pXd38I93qKdDufE="
-    }
-  ],
+        {
+          urls: [
+            "stun:stun.l.google.com:19302",
+            "stun:stun1.l.google.com:19302"
+          ]
+        },
+        {
+          urls: "turn:relay1.expressturn.com:3478",
+          username: "000000002065507580",
+          credential: "nbEnmf9DArh2pXd38I93qKdDufE="
+        }
+      ],
       bundlePolicy: "max-bundle",
       rtcpMuxPolicy: "require",
       iceCandidatePoolSize: 10,
@@ -956,7 +957,7 @@ await new Promise((resolve, reject) => {
 
   // ======= UI =======
 return (
-  <div className="flex w-full min-h-screen bg-gray-100 p-4">
+  <div className="flex w-full h-screen bg-black"> {/* No padding, full height */}
 
     {/* Hidden audio/video elements */}
     <audio ref={localAudioRef} autoPlay playsInline muted style={{ display: 'none' }} />
@@ -964,57 +965,60 @@ return (
     <video ref={localVideoRef} autoPlay playsInline muted hidden />
     <video ref={remoteVideoRef} autoPlay playsInline hidden />
     {incomingCall && (
-  <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
-    <div className="bg-white p-6 rounded-2xl text-center shadow-lg">
-      <h3 className="text-xl font-semibold mb-4">Incoming {incomingCall.type} Call...</h3>
-      <div className="flex justify-center gap-4">
-        <button
-          className="bg-green-500 text-white px-4 py-2 rounded-2xl"
-          onClick={() => acceptCall(incomingCall)}
-        >
-          Accept
-        </button>
-        <button
-          className="bg-red-500 text-white px-4 py-2 rounded-2xl"
-          onClick={rejectCall}
-        >
-          Reject
-        </button>
+      <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+        <div className="bg-white p-6 rounded-2xl text-center shadow-lg">
+          <h3 className="text-xl font-semibold mb-4">Incoming {incomingCall.type} Call...</h3>
+          <div className="flex justify-center gap-4">
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded-2xl"
+              onClick={() => acceptCall(incomingCall)}
+            >
+              Accept
+            </button>
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded-2xl"
+              onClick={rejectCall}
+            >
+              Reject
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-)}
+    )}
 
     {/* ====== Conditional Rendering: Show Chat List OR Chat Box ====== */}
     {!selectedChat ? (
       // ================== Chat List View ==================
-      <div className="flex flex-col w-full max-w-md mx-auto gap-4">
-        <textarea
-          onChange={searching}
-          value={search}
-          className="border rounded-2xl p-2 resize-none h-24"
-          placeholder="Search users..."
-        ></textarea>
-
-        <div className="flex flex-col gap-2">
-          {(search === '' ? conversations : searchedUsers).map((item, index) => (
-            <button
-              key={index}
-              onClick={() => setChat(search === '' ? item.user : item)}
-              className="text-left"
-            >
-              <Chats
-                img={item.user?.image || item.image || ''}
-                last={item.lastMessage?.text || 'Start chatting...'}
-                name={item.user?.name || item.name || 'User'}
-              />
-            </button>
-          ))}
+      <div className="flex flex-col w-full h-full bg-gray-900">
+        <div className="p-6 pb-2">
+            <textarea
+              onChange={searching}
+              value={search}
+              className="w-full bg-gray-800 text-white placeholder-gray-400 rounded-xl p-3 h-14 resize-none focus:ring-2 focus:ring-blue-500 border-none outline-none shadow-md"
+              placeholder="Search users..."
+              rows={1}
+              style={{ minHeight: '3.5rem', maxHeight: '6rem' }}
+            ></textarea>
+          </div>
+          <div className="flex flex-col gap-2 flex-1 overflow-y-auto px-4 pb-4 scrollbar-thin scrollbar-thumb-black scrollbar-track-gray-700" style={{ scrollbarColor: '#000 #374151', scrollbarWidth: 'thin' }}>
+            {(search === '' ? conversations : searchedUsers).map((item, index) => (
+              <button
+                key={index}
+                onClick={() => setChat(search === '' ? item.user : item)}
+                className="flex items-center w-full bg-gray-800 hover:bg-gray-700 transition rounded-xl p-4 shadow group text-left gap-4 border border-gray-800 hover:border-blue-600"
+              >
+                <Chats
+                  img={item.user?.image || item.image || ''}
+                  last={item.lastMessage?.text || 'Start chatting...'}
+                  name={item.user?.name || item.name || 'User'}
+                />
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
     ) : (
       // ================== Chat Box View ==================
-      <div className="flex flex-col w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-4 gap-4 h-[90vh] relative">
+      <div className="flex flex-col w-full h-full bg-gray-900 gap-4 relative"> {/* Full width/height, no padding, no rounded/shadow */}
         {/* Back Button */}
       
 
@@ -1042,7 +1046,7 @@ return (
         )}
 
         {/* Header */}
-        <nav className="flex items-center justify-between bg-black text-white p-3 rounded-2xl">
+        <nav className="flex items-center justify-between bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white p-4 shadow-lg">
           <div className="flex items-center gap-4">
               <button
       className="text-white text-xl font-bold mr-2"
@@ -1059,11 +1063,27 @@ return (
           <div className="flex items-center gap-4 pr-2">
             {!isCallActive.is ? (
               <>
-                <button className="p-2 rounded-full bg-gray-700" onClick={() => startCall("audio")}>
-                  📞
+                <button
+                  className="p-3 rounded-full bg-gray-700 shadow hover:scale-110 hover:shadow-lg transition-transform duration-150 focus:outline-none text-2xl"
+                  title="Start Audio Call"
+                  aria-label="Start Audio Call"
+                  onClick={() => startCall("audio")}
+                >
+                  {/* Modern phone SVG icon */}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-white">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15 .621 0 1.125-.504 1.125-1.125v-3.375a1.125 1.125 0 0 0-1.125-1.125c-1.636 0-3.21-.26-4.687-.75a1.125 1.125 0 0 0-1.125.27l-2.25 2.25a12.042 12.042 0 0 1-5.25-5.25l2.25-2.25a1.125 1.125 0 0 0 .27-1.125c-.49-1.477-.75-3.051-.75-4.687A1.125 1.125 0 0 0 5.625 2.25H2.25A1.125 1.125 0 0 0 1.125 3.375z" />
+                  </svg>
                 </button>
-                <button className="p-2 rounded-full bg-gray-700" onClick={() => startCall("video")}>
-                  🎥
+                <button
+                  className="p-3 rounded-full bg-gray-700 shadow hover:scale-110 hover:shadow-lg transition-transform duration-150 focus:outline-none text-2xl"
+                  title="Start Video Call"
+                  aria-label="Start Video Call"
+                  onClick={() => startCall("video")}
+                >
+                  {/* Modern video camera SVG icon */}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-white">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6.75A2.25 2.25 0 0 0 13.5 4.5h-7.5A2.25 2.25 0 0 0 3.75 6.75v10.5A2.25 2.25 0 0 0 6 19.5h7.5a2.25 2.25 0 0 0 2.25-2.25v-3.75l4.28 3.21a.75.75 0 0 0 1.22-.6V7.14a.75.75 0 0 0-1.22-.6l-4.28 3.21z" />
+                  </svg>
                 </button>
               </>
             ) : (
@@ -1101,7 +1121,7 @@ return (
         )}
 
         {/* Messages */}
-        <div id="message-container" className="flex flex-col gap-2 overflow-y-auto px-2 flex-grow">
+        <div id="message-container" className="flex flex-col gap-2 overflow-y-auto px-2 flex-grow scrollbar-thin scrollbar-thumb-black scrollbar-track-gray-700" style={{ scrollbarColor: '#000 #374151', scrollbarWidth: 'thin' }}>
           {chatMessages.map((msg, index) => (
             <Message
               key={index}
@@ -1114,33 +1134,33 @@ return (
         </div>
 
         {/* Footer */}
-        <div className="flex items-center gap-2 mt-auto relative">
-          <button className="text-xl" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+        <div className="flex items-center gap-2 mt-auto relative bg-gray-800 rounded-xl px-4 py-3 shadow-lg">
+          <button className="text-2xl text-yellow-400 hover:scale-110 transition-transform duration-150 focus:outline-none" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
             😊
           </button>
           <input type="file" id="fileInput" className="hidden" onChange={handleFileChange} />
           <button
-            className="bg-gray-300 text-black px-3 py-2 rounded-2xl hover:bg-gray-400 transition"
+            className="bg-gray-700 text-white px-3 py-2 rounded-xl shadow hover:shadow-xl hover:bg-gray-600 transition duration-150 focus:outline-none"
             onClick={() => document.getElementById('fileInput').click()}
           >
-            📎 Attach
+            📎
           </button>
           <textarea
             value={text}
-            className="flex-grow border rounded-2xl p-2 resize-none h-12"
+            className="flex-grow border-none rounded-xl p-3 resize-none h-12 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
             placeholder="Type your message..."
             onChange={(e) => setText(e.target.value)}
           ></textarea>
           <button
-            className="bg-blue-500 text-white px-4 py-2 rounded-2xl hover:bg-blue-600 transition"
+            className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold shadow-lg hover:bg-blue-500 hover:shadow-blue-400/50 focus:outline-none transition duration-150 ring-2 ring-blue-700/30 hover:ring-blue-400/60"
             onClick={sendMessages}
           >
             Send
           </button>
 
           {showEmojiPicker && (
-            <div className="absolute bottom-16 right-4 z-50">
-              <Picker data={data} onEmojiSelect={addEmoji} />
+            <div className="absolute bottom-20 right-4 z-50 drop-shadow-xl">
+              <Picker data={data} onEmojiSelect={addEmoji} theme="dark" />
             </div>
           )}
         </div>

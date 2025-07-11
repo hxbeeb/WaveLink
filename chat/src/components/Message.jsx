@@ -14,38 +14,38 @@ function Message(props) {
       } w-fit max-w-[70%] ${className}`}
     >
       {fileUrl ? (
-        <div className="bg-gray-100 p-2 rounded-2xl">
+        <div className="bg-gray-800 p-2 rounded-2xl shadow-md">
           {isImage ? (
             <img
-            crossOrigin="anonymous"
-              src={`http://localhost:5000${fileUrl}`}
+              crossOrigin="anonymous"
+              src={`https://back-r655.onrender.com${fileUrl}`}
               alt="sent file"
               className="max-w-full rounded-2xl"
             />
           ) : isVideo ? (
             <video
-            crossOrigin="anonymous"
+              crossOrigin="anonymous"
               controls
-              src={`http://localhost:5000${fileUrl}`}
+              src={`https://back-r655.onrender.com${fileUrl}`}
               className="max-w-full rounded-2xl"
             />
           ) : (
             <a
-              href={`http://localhost:5000${fileUrl}`}
+              href={`https://back-r655.onrender.com${fileUrl}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
+              className="text-white hover:underline break-all"
             >
-              {/* 📎  */}
               {message}
             </a>
           )}
-          {/* {message && <div className="mt-1">{message}</div>} */}
         </div>
       ) : (
         <div
-          className={`bg-green-200 p-2 rounded-t-2xl ${
-            side === 'l' ? 'rounded-l-2xl' : 'rounded-r-2xl'
+          className={`p-3 shadow-md text-base font-medium break-words ${
+            side === 'l'
+              ? 'bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 text-white rounded-t-2xl rounded-l-2xl'
+              : 'bg-gray-700 text-gray-100 rounded-t-2xl rounded-r-2xl'
           }`}
         >
           {message}

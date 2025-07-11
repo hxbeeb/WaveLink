@@ -3,7 +3,7 @@ import React from 'react'
 function Chats(props) {
   // console.log("Image:", props.img); // Log the correct prop
   return (
-    <div className="flex items-center gap-2 bg-black p-2 rounded-3xl">
+    <div className="flex items-center gap-2">
 
       <img
         src={props.img}
